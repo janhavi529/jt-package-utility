@@ -1,8 +1,8 @@
 import fs from "fs";
 import readline from "readline";
 
-import pathUtils from "../lib/utils/path";
-import fileUtils from "../lib/utils/file";
+import { getAbsoluteFilePath } from "../lib/utils/path";
+import { checkIfFileExists } from "../lib/utils/file";
 import { PackingError } from "../lib/errors/PackingError";
 
 // Using an interface to define the item object type.
@@ -22,41 +22,41 @@ export class Packer {
    * @returns {Promise<String>} solution
    */
   static async pack(filePath: string): Promise<string> {
-    try {
-      return new Promise((resolve, reject) => {
-        // Get absolute file path.
-        const absoluteInputPath = pathUtils.getAbsoluteFilePath(filePath);
+    return new Promise((resolve, reject) => {
+      // Get absolute file path.
+      const absoluteInputPath = getAbsoluteFilePath(filePath);
 
-        // Check if the input file exists. If not, a FileNotFound error will be thrown.
-        fileUtils.checkIfFileExists(absoluteInputPath);
+      // Check if the input file exists. If not, a FileNotFound error will be thrown.
+      checkIfFileExists(absoluteInputPath);
 
-        // Create read stream (default encoding is utf8).
-        const readStream = fs.createReadStream(absoluteInputPath);
+      // Create read stream (default encoding is utf8).
+      const readStream = fs.createReadStream(absoluteInputPath);
 
-        // Use readline interface for reading data from the file stream one line at a time,
-        // Instead of synchronously loading the entire file before reading any lines, which consumes more memory.
-        const rl = readline.createInterface({
-          input: readStream,
-          crlfDelay: Infinity, // Identify all instances of \r\n as a single newline.
-        });
-
-        const packages: Array<string> = [];
-
-        // Process each line from the file.
-        rl.on("line", (line) => {
-          const packageDetails = this.getPackageDetailsFromFileLine(line);
-          packages.push(packageDetails);
-        });
-
-        rl.on("close", () => {
-          // Return string of package details.
-          const packagesOutput = packages.join("\n");
-          resolve(packagesOutput);
-        });
+      // Use readline interface for reading data from the file stream one line at a time,
+      // Instead of synchronously loading the entire file before reading any lines, which consumes more memory.
+      const rl = readline.createInterface({
+        input: readStream,
+        crlfDelay: Infinity, // Identify all instances of \r\n as a single newline.
       });
-    } catch (err) {
-      throw new PackingError("Unable to pack");
-    }
+
+      const packages: Array<string> = [];
+
+      // Process each line from the file.
+      rl.on("line", (line) => {
+        const packageDetails = this.getPackageDetailsFromFileLine(line);
+        packages.push(packageDetails);
+      });
+
+      rl.on("close", () => {
+        // Return string of package details.
+        const packagesOutput = packages.join("\n");
+        resolve(packagesOutput);
+      });
+
+      rl.on("error", (err) => {
+        reject(err);
+      });
+    });
   }
 
   /**

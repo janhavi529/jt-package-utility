@@ -16,6 +16,7 @@
   "license": "ISC",
   "devDependencies": {
     "@tsconfig/node18": "^18.2.2",
+    "@types/app-root-path": "^1.2.7",
     "@types/jest": "^29.5.6",
     "@types/node": "^20.8.7",
     "jest": "^29.7.0",

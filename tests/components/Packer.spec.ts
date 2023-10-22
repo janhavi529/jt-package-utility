@@ -4,8 +4,19 @@ import appRootPath from "app-root-path";
 
 import { Packer } from "../../src/components/Packer";
 import { PackingError } from "../../src/lib/errors/PackingError";
-import notFoundErrors from "../../src/lib/errors/NotFoundErrors";
-import packerMocks from "../mocks/packer";
+import { FileNotFound } from "../../src/lib/errors/NotFoundErrors";
+import {
+  mockValidItems,
+  mockValidItemsSameCost,
+  mockValidPackageInputLine,
+  mockInvalidNoWeightLimitLine,
+  mockInvalidExceededPackageWeightLine,
+  mockInvalidExceededItemWeightLine,
+  mockInvalidExceededItemCostLine,
+  mockInvalidExceededItemsCountLine,
+  mockInvalidItemOptionsLine,
+  mockInvalidNoItemOptionsLine,
+} from "../mocks/packer";
 
 describe("Packer", () => {
   beforeEach(() => {
@@ -18,7 +29,7 @@ describe("Packer", () => {
 
       const selectedItemIndices = Packer.getPackageItems(
         mockWeightLimit,
-        packerMocks.mockValidItems
+        mockValidItems
       );
 
       expect(selectedItemIndices).toEqual([2, 7]);
@@ -29,7 +40,7 @@ describe("Packer", () => {
 
       const selectedItemIndices = Packer.getPackageItems(
         mockWeightLimit,
-        packerMocks.mockValidItemsSameCost
+        mockValidItemsSameCost
       );
 
       expect(selectedItemIndices).toEqual([2, 10]);
@@ -49,14 +60,11 @@ describe("Packer", () => {
       const getPackageItemsSpy = jest.spyOn(Packer, "getPackageItems");
 
       const packageDetails = Packer.getPackageDetailsFromFileLine(
-        packerMocks.mockValidPackageInputLine
+        mockValidPackageInputLine
       );
 
       expect(getPackageItemsSpy).toHaveBeenCalledTimes(1);
-      expect(getPackageItemsSpy).toHaveBeenCalledWith(
-        75,
-        packerMocks.mockValidItems
-      );
+      expect(getPackageItemsSpy).toHaveBeenCalledWith(75, mockValidItems);
       expect(packageDetails).toEqual("2,7");
     });
 
@@ -64,7 +72,7 @@ describe("Packer", () => {
       const getPackageItemsSpy = jest.spyOn(Packer, "getPackageItems");
 
       const packageDetails = Packer.getPackageDetailsFromFileLine(
-        packerMocks.mockInvalidNoWeightLimitLine
+        mockInvalidNoWeightLimitLine
       );
 
       expect(getPackageItemsSpy).not.toHaveBeenCalled();
@@ -77,7 +85,7 @@ describe("Packer", () => {
 
       try {
         Packer.getPackageDetailsFromFileLine(
-          packerMocks.mockInvalidExceededPackageWeightLine
+          mockInvalidExceededPackageWeightLine
         );
       } catch (err) {
         expect(err).toEqual(packingError);
@@ -92,9 +100,7 @@ describe("Packer", () => {
       const getPackageItemsSpy = jest.spyOn(Packer, "getPackageItems");
 
       try {
-        Packer.getPackageDetailsFromFileLine(
-          packerMocks.mockInvalidExceededItemWeightLine
-        );
+        Packer.getPackageDetailsFromFileLine(mockInvalidExceededItemWeightLine);
       } catch (err) {
         expect(err).toEqual(packingError);
         expect(getPackageItemsSpy).not.toHaveBeenCalled();
@@ -108,9 +114,7 @@ describe("Packer", () => {
       const getPackageItemsSpy = jest.spyOn(Packer, "getPackageItems");
 
       try {
-        Packer.getPackageDetailsFromFileLine(
-          packerMocks.mockInvalidExceededItemCostLine
-        );
+        Packer.getPackageDetailsFromFileLine(mockInvalidExceededItemCostLine);
       } catch (err) {
         expect(err).toEqual(packingError);
         expect(getPackageItemsSpy).not.toHaveBeenCalled();
@@ -124,9 +128,7 @@ describe("Packer", () => {
       const getPackageItemsSpy = jest.spyOn(Packer, "getPackageItems");
 
       try {
-        Packer.getPackageDetailsFromFileLine(
-          packerMocks.mockInvalidExceededItemsCountLine
-        );
+        Packer.getPackageDetailsFromFileLine(mockInvalidExceededItemsCountLine);
       } catch (err) {
         expect(err).toEqual(packingError);
         expect(getPackageItemsSpy).not.toHaveBeenCalled();
@@ -139,7 +141,7 @@ describe("Packer", () => {
       getPackageItemsSpy.mockReturnValueOnce([]);
 
       const packageDetails = Packer.getPackageDetailsFromFileLine(
-        packerMocks.mockInvalidItemOptionsLine
+        mockInvalidItemOptionsLine
       );
 
       expect(getPackageItemsSpy).toHaveBeenCalledTimes(1);
@@ -157,7 +159,7 @@ describe("Packer", () => {
       const getPackageItemsSpy = jest.spyOn(Packer, "getPackageItems");
 
       const packageDetails = Packer.getPackageDetailsFromFileLine(
-        packerMocks.mockInvalidNoItemOptionsLine
+        mockInvalidNoItemOptionsLine
       );
 
       expect(getPackageItemsSpy).not.toHaveBeenCalled();
@@ -208,7 +210,7 @@ describe("Packer", () => {
       const appRoot = appRootPath.toString();
       const filePathArr = ["tests", "resources", "unknown"];
       const mockFilePath = path.join(appRoot, ...filePathArr);
-      const fileNotFoundError = new notFoundErrors.FileNotFound(
+      const fileNotFoundError = new FileNotFound(
         `File ${mockFilePath} does not exist`
       );
 

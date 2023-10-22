@@ -5,7 +5,6 @@ class NotFound extends Error {
     Error.captureStackTrace(this, NotFound);
   }
 }
-
 class FileNotFound extends NotFound {
   constructor(message: string) {
     super(message);
@@ -14,8 +13,15 @@ class FileNotFound extends NotFound {
   }
 }
 
-const notFoundErrors = {
-  FileNotFound
-};
+class PathNotFound extends NotFound {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PathNotFound';
+    Error.captureStackTrace(this, PathNotFound);
+  }
+}
 
-export default notFoundErrors;
+export {
+  FileNotFound,
+  PathNotFound
+};
