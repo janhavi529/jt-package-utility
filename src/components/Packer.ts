@@ -22,41 +22,45 @@ export class Packer {
    * @returns {Promise<String>} solution
    */
   static async pack(filePath: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      // Get absolute file path.
-      const absoluteInputPath = getAbsoluteFilePath(filePath);
+    try {
+      return new Promise((resolve, reject) => {
+        // Get absolute file path.
+        const absoluteInputPath = getAbsoluteFilePath(filePath);
 
-      // Check if the input file exists. If not, a FileNotFound error will be thrown.
-      checkIfFileExists(absoluteInputPath);
+        // Check if the input file exists. If not, a FileNotFound error will be thrown.
+        checkIfFileExists(absoluteInputPath);
 
-      // Create read stream (default encoding is utf8).
-      const readStream = fs.createReadStream(absoluteInputPath);
+        // Create read stream (default encoding is utf8).
+        const readStream = fs.createReadStream(absoluteInputPath);
 
-      // Use readline interface for reading data from the file stream one line at a time,
-      // Instead of synchronously loading the entire file before reading any lines, which consumes more memory.
-      const rl = readline.createInterface({
-        input: readStream,
-        crlfDelay: Infinity, // Identify all instances of \r\n as a single newline.
+        // Use readline interface for reading data from the file stream one line at a time,
+        // Instead of synchronously loading the entire file before reading any lines, which consumes more memory.
+        const rl = readline.createInterface({
+          input: readStream,
+          crlfDelay: Infinity, // Identify all instances of \r\n as a single newline.
+        });
+
+        const packages: Array<string> = [];
+
+        // Process each line from the file.
+        rl.on("line", (line) => {
+          const packageDetails = this.getPackageDetailsFromFileLine(line);
+          packages.push(packageDetails);
+        });
+
+        rl.on("close", () => {
+          // Return string of package details.
+          const packagesOutput = packages.join("\n");
+          resolve(packagesOutput);
+        });
+
+        rl.on("error", (err) => {
+          reject(err);
+        });
       });
-
-      const packages: Array<string> = [];
-
-      // Process each line from the file.
-      rl.on("line", (line) => {
-        const packageDetails = this.getPackageDetailsFromFileLine(line);
-        packages.push(packageDetails);
-      });
-
-      rl.on("close", () => {
-        // Return string of package details.
-        const packagesOutput = packages.join("\n");
-        resolve(packagesOutput);
-      });
-
-      rl.on("error", (err) => {
-        reject(err);
-      });
-    });
+    } catch (err) {
+      throw err;
+    }
   }
 
   /**
