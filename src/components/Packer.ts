@@ -1,12 +1,9 @@
-import path from "path";
 import fs from "fs";
 import readline from "readline";
 
-import appRootPath from "app-root-path";
-
-import pathUtils from '../lib/utils/path';
+import pathUtils from "../lib/utils/path";
+import fileUtils from "../lib/utils/file";
 import { PackingError } from "../lib/errors/PackingError";
-import notFoundErrors from "../lib/errors/NotFoundErrors";
 
 // Using an interface to define the item object type.
 interface ItemObj {
@@ -25,57 +22,41 @@ export class Packer {
    * @returns {Promise<String>} solution
    */
   static async pack(filePath: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      // Get absolute file path.
-      const absoluteInputPath = pathUtils.getAbsoluteFilePath(filePath);
+    try {
+      return new Promise((resolve, reject) => {
+        // Get absolute file path.
+        const absoluteInputPath = pathUtils.getAbsoluteFilePath(filePath);
 
-      // Check if the input file exists.
-      if (!fs.existsSync(absoluteInputPath)) {
-        throw new notFoundErrors.FileNotFound(
-          `File ${absoluteInputPath} does not exist`
-        );
-      }
+        // Check if the input file exists. If not, a FileNotFound error will be thrown.
+        fileUtils.checkIfFileExists(absoluteInputPath);
 
-      // Set the output file path to /resources/output.
-      const absoluteOutputPath = path.join(appRootPath.toString(), "resources", "output");
+        // Create read stream (default encoding is utf8).
+        const readStream = fs.createReadStream(absoluteInputPath);
 
-      // Create read and write streams (default encoding is utf8).
-      const readStream = fs.createReadStream(absoluteInputPath);
-      const writeStream = fs.createWriteStream(absoluteOutputPath);
+        // Use readline interface for reading data from the file stream one line at a time,
+        // Instead of synchronously loading the entire file before reading any lines, which consumes more memory.
+        const rl = readline.createInterface({
+          input: readStream,
+          crlfDelay: Infinity, // Identify all instances of \r\n as a single newline.
+        });
 
-      // Use readline interface for reading data from the file stream one line at a time,
-      // Instead of synchronously loading the entire file before reading any lines, which consumes more memory.
-      const rl = readline.createInterface({
-        input: readStream,
-        output: writeStream,
-        crlfDelay: Infinity, // Identify all instances of \r\n as a single newline.
+        const packages: Array<string> = [];
+
+        // Process each line from the file.
+        rl.on("line", (line) => {
+          const packageDetails = this.getPackageDetailsFromFileLine(line);
+          packages.push(packageDetails);
+        });
+
+        rl.on("close", () => {
+          // Return string of package details.
+          const packagesOutput = packages.join("\n");
+          resolve(packagesOutput);
+        });
       });
-
-      const packages: Array<string> = [];
-
-      // Process each line from the file.
-      rl.on("line", (line) => {
-        const packageDetails = this.getPackageDetailsFromFileLine(line);
-        // Write the line to the output file.
-        writeStream.write(packageDetails + "\n");
-        packages.push(packageDetails);
-      });
-
-      rl.on("close", () => {
-        if (!writeStream.closed) {
-          // End write stream after all output lines are written.
-          writeStream.end();
-        }
-
-        // Return string of package details.
-        const packagesOutput = packages.join("\n");
-        resolve(packagesOutput);
-      });
-
-      rl.on("error", (err) => {
-        reject(err);
-      });
-    });
+    } catch (err) {
+      throw new PackingError("Unable to pack");
+    }
   }
 
   /**
@@ -88,7 +69,12 @@ export class Packer {
   static getPackageDetailsFromFileLine(line: string): string {
     // Extract package weight limit from the line.
     const weightLimitMatch = line.match(/(\d+) :/);
-    const weightLimit = weightLimitMatch ? parseInt(weightLimitMatch[1]) : 0;
+
+    if (!weightLimitMatch) {
+      return "-";
+    }
+
+    const weightLimit = parseInt(weightLimitMatch[1]);
 
     // Throw an error if package weight limit is greater than 100.
     if (weightLimit > 100) {
@@ -169,64 +155,61 @@ export class Packer {
     weightLimit: number,
     items: Array<ItemObj>
   ): Array<number> {
-    try {
-      const n = items.length;
+    const n = items.length;
 
-      // Sort items by weight in ascending order to start calculating with lighter items.
-      items.sort((a, b) => a.weight - b.weight);
-
-      /* Using Dynamic Programming Approach
-       * Memoization - To keep a track of previous maximum cost calculations and use cached results for further iterations.
-       * This is better than using a recursive approach, which has very high exponential time complexity due to repetitive calculations.
-       */
-
-      //  Using Tabulation - Creating a 2D Array to keep track of the maximum cost for each combination of items.
-      const trackedCosts = new Array(n + 1)
-        .fill(0)
-        .map(() => new Array(weightLimit + 1).fill(0));
-
-      // For each item (row), loop through each column which contains weights from 0 to weightLimit and apply maximum cost calculation logic.
-      for (let i = 0; i <= n; i++) {
-        for (let j = 0; j <= weightLimit; j++) {
-          if (i === 0 || j === 0) {
-            trackedCosts[i][j] = 0;
-          } else if (items[i - 1].weight <= j) {
-            // If the item weighs less than the weight 'j', we can make a choice whether to add the item to the package or not, based on the maximum cost calculation below.
-            // Go to previous row which contains maximum costs till now. Get the cost for the previous item for remaining weight (subtracting item's weight from the allowed weight 'j').
-            const previousMaximumCost =
-              trackedCosts[i - 1][j - Math.floor(items[i - 1].weight)];
-            const costIfIncluded = items[i - 1].cost + previousMaximumCost;
-            // If the item is not included, get the maximum cost for the previous item row for the same weight 'j'.
-            const costIfNotIncluded = trackedCosts[i - 1][j]; // Memoization
-
-            trackedCosts[i][j] = Math.max(costIfIncluded, costIfNotIncluded);
-          } else {
-            // If the current item's weight is greater than the allowed weight 'j', it cannot be included. Set the previous maximum cost.
-            trackedCosts[i][j] = trackedCosts[i - 1][j]; // Memoization
-          }
-        }
-      }
-
-      // Backtrack through the trackedCosts array to get selected items.
-      const selectedItemIndices = [];
-      let j = weightLimit;
-      for (let i = n; i > 0 && j > 0; i--) {
-        // Checking if the previous item's maximum cost is the same. If so, The current item is not the item which has contributed to the maximum cost, so move up to the previous row.
-        if (trackedCosts[i][j] !== trackedCosts[i - 1][j]) {
-          // Add the previous item index to the selected items.
-          selectedItemIndices.push(items[i - 1].index);
-          // Update the remaining weight.
-          j -= Math.floor(items[i - 1].weight);
-        }
-      }
-
-      // Sort the selected items indices array in ascending order as the output is expected in a sorted format.
-      return selectedItemIndices.sort((a, b) => a - b);
-    } catch (err) {
-      throw new PackingError(
-        "Unable to get list of items contributing to maximum cost."
-      );
+    if (!n) {
+      return [];
     }
+
+    // Sort items by weight in ascending order to start calculating with lighter items.
+    items.sort((a, b) => a.weight - b.weight);
+
+    /* Using Dynamic Programming Approach
+     * Memoization - To keep a track of previous maximum cost calculations and use cached results for further iterations.
+     * This is better than using a recursive approach, which has very high exponential time complexity due to repetitive calculations.
+     */
+
+    //  Using Tabulation - Creating a 2D Array to keep track of the maximum cost for each combination of items.
+    const trackedCosts = new Array(n + 1)
+      .fill(0)
+      .map(() => new Array(weightLimit + 1).fill(0));
+
+    // For each item (row), loop through each column which contains weights from 0 to weightLimit and apply maximum cost calculation logic.
+    for (let i = 0; i <= n; i++) {
+      for (let j = 0; j <= weightLimit; j++) {
+        if (i === 0 || j === 0) {
+          trackedCosts[i][j] = 0;
+        } else if (items[i - 1].weight <= j) {
+          // If the item weighs less than the weight 'j', we can make a choice whether to add the item to the package or not, based on the maximum cost calculation below.
+          // Go to previous row which contains maximum costs till now. Get the cost for the previous item for remaining weight (subtracting item's weight from the allowed weight 'j').
+          const previousMaximumCost =
+            trackedCosts[i - 1][j - Math.floor(items[i - 1].weight)];
+          const costIfIncluded = items[i - 1].cost + previousMaximumCost;
+          // If the item is not included, get the maximum cost for the previous item row for the same weight 'j'.
+          const costIfNotIncluded = trackedCosts[i - 1][j]; // Memoization
+
+          trackedCosts[i][j] = Math.max(costIfIncluded, costIfNotIncluded);
+        } else {
+          // If the current item's weight is greater than the allowed weight 'j', it cannot be included. Set the previous maximum cost.
+          trackedCosts[i][j] = trackedCosts[i - 1][j]; // Memoization
+        }
+      }
+    }
+
+    // Backtrack through the trackedCosts array to get selected items.
+    const selectedItemIndices = [];
+    let j = weightLimit;
+    for (let i = n; i > 0 && j > 0; i--) {
+      // Checking if the previous item's maximum cost is the same. If so, The current item is not the item which has contributed to the maximum cost, so move up to the previous row.
+      if (trackedCosts[i][j] !== trackedCosts[i - 1][j]) {
+        // Add the previous item index to the selected items.
+        selectedItemIndices.push(items[i - 1].index);
+        // Update the remaining weight.
+        j -= Math.floor(items[i - 1].weight);
+      }
+    }
+
+    // Sort the selected items indices array in ascending order as the output is expected in a sorted format.
+    return selectedItemIndices.sort((a, b) => a - b);
   }
 }
-
