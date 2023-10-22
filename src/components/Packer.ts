@@ -66,7 +66,7 @@ export class Packer {
    * @throws {PackingError} if unable to pack
    * @returns {String} package items separated by a comma (or "-" if there are no items)
    */
-  static getPackageDetailsFromFileLine(line: string): string {
+  private static getPackageDetailsFromFileLine(line: string): string {
     // Extract package weight limit from the line.
     const weightLimitMatch = line.match(/(\d+) :/);
 
@@ -151,7 +151,7 @@ export class Packer {
    * @throws {PackingError} if unable to pack
    * @returns {Array} selected package items
    */
-  static getPackageItems(
+  private static getPackageItems(
     weightLimit: number,
     items: Array<ItemObj>
   ): Array<number> {
