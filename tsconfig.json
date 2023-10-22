@@ -1,0 +1,13 @@
+{
+  "extends": "@tsconfig/node18/tsconfig.json" /* Extend from Node18 TS config */,
+  "compilerOptions": {
+    "lib": [
+      "es2023",
+      "dom"
+    ] /* Specify library files to be included in the compilation. */,
+    "rootDir": "./src" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
+    "outDir": "./dist" /* Redirect output structure to the directory. */,
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.spec.ts"]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "jt-package-utility",
+  "version": "1.0.0",
+  "description": "Package Challenge",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "compile": "tsc",
+    "start": "nodemon ./src/index.ts",
+    "start:prod": "node ./dist/index.js",
+    "test": "jest --coverage"
+  },
+  "author": "Janhavi",
+  "license": "ISC",
+  "devDependencies": {
+    "@tsconfig/node18": "^18.2.2",
+    "@types/node": "^20.8.7",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "app-root-path": "^3.1.0"
+  }
+}
