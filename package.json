@@ -1,6 +1,6 @@
 {
   "name": "jt-packer-utility",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Package Challenge",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
