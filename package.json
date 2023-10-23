@@ -1,6 +1,6 @@
 {
   "name": "jt-packer-utility",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "Package Challenge",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -15,7 +15,12 @@
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "prepare": "husky install"
   },
-  "author": "Janhavi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/janhavi529/jt-package-utility.git"
+  },
+  "homepage": "https://github.com/janhavi529/jt-package-utility#readme",
+  "author": "Janhavi Toshkhani",
   "license": "ISC",
   "devDependencies": {
     "@tsconfig/node18": "^18.2.2",
