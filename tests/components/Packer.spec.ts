@@ -231,6 +231,18 @@ describe('Packer', () => {
       expect(packerOutput).toEqual('-');
     });
 
+    test("should return '-' if invalid item options are provided and correct selected items for items in correct format", async () => {
+      const mockFilePath = [
+        'tests',
+        'resources',
+        'input_invalid_item_format'
+      ].join(path.sep);
+
+      const packerOutput = await Packer.pack(mockFilePath);
+
+      expect(packerOutput).toEqual(['3', '-'].join('\n'));
+    });
+
     test('should reject with an error for invalid package weight', async () => {
       const mockFilePath = [
         'tests',
