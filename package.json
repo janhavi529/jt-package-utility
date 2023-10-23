@@ -1,12 +1,12 @@
 {
   "name": "jt-packer-utility",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "Package Challenge",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts --minify",
     "compile": "tsc",
     "start": "nodemon ./src/index.ts",
     "start:prod": "node ./dist/index.js",
