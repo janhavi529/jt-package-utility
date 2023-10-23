@@ -57,10 +57,6 @@ export class Packer {
           const packagesOutput = packages.join("\n");
           resolve(packagesOutput);
         });
-
-        rl.on("error", (err) => {
-          reject(new PackingError(err.message || "Unable to pack"));
-        });
       });
     } catch (err: any) {
       throw new PackingError(err.message || "Unable to pack");

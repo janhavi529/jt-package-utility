@@ -16,6 +16,7 @@ import {
   mockInvalidExceededItemsCountLine,
   mockInvalidItemOptionsLine,
   mockInvalidNoItemOptionsLine,
+  mockInvalidItemFormatLine,
 } from "../mocks/packer";
 
 describe("Packer", () => {
@@ -144,7 +145,7 @@ describe("Packer", () => {
       }
     });
 
-    test("should return '-' if getPackageItems returns an empty array of items", () => {
+    test("should return '-' if no items can be included in the package", () => {
       //const getPackageItemsSpy = jest.spyOn(Packer, "getPackageItems");
 
       // getPackageItemsSpy.mockReturnValueOnce([]);
@@ -169,6 +170,17 @@ describe("Packer", () => {
 
       const packageDetails = Packer["getPackageDetailsFromFileLine"](
         mockInvalidNoItemOptionsLine
+      );
+
+      // expect(getPackageItemsSpy).not.toHaveBeenCalled();
+      expect(packageDetails).toEqual("-");
+    });
+
+    test("should return a '-' if there is no valid pattern match for the item options in the input line", () => {
+      // const getPackageItemsSpy = jest.spyOn(Packer, "getPackageItems");
+
+      const packageDetails = Packer["getPackageDetailsFromFileLine"](
+        mockInvalidItemFormatLine
       );
 
       // expect(getPackageItemsSpy).not.toHaveBeenCalled();
@@ -226,6 +238,80 @@ describe("Packer", () => {
       await expect(Packer.pack(mockFilePath)).rejects.toThrow(
         fileNotFoundError
       );
+    });
+
+    test("should return '-' if no package weight limit is provided", async () => {
+      const mockFilePath = [
+        "tests",
+        "resources",
+        "input_invalid_no_package_weight",
+      ].join(path.sep);
+
+      const packerOutput = await Packer.pack(mockFilePath);
+
+      expect(packerOutput).toEqual("-");
+    });
+
+    test("should return '-' if no package item options are provided", async () => {
+      const mockFilePath = [
+        "tests",
+        "resources",
+        "input_invalid_no_items",
+      ].join(path.sep);
+
+      const packerOutput = await Packer.pack(mockFilePath);
+
+      expect(packerOutput).toEqual("-");
+    });
+
+    test("should reject with an error for invalid package weight", async () => {
+      const mockFilePath = [
+        "tests",
+        "resources",
+        "input_invalid_package_weight",
+      ].join(path.sep);
+      const packingError = new PackingError("Package weight 101 exceeds 100");
+
+      await expect(Packer.pack(mockFilePath)).rejects.toThrow(packingError);
+    });
+
+    test("should reject with an error for invalid item weight", async () => {
+      const mockFilePath = [
+        "tests",
+        "resources",
+        "input_invalid_item_weight",
+      ].join(path.sep);
+      const packingError = new PackingError(
+        "Item weight 101.31 (from package with weight limit 95) exceeds 100"
+      );
+
+      await expect(Packer.pack(mockFilePath)).rejects.toThrow(packingError);
+    });
+
+    test("should reject with an error for invalid item cost", async () => {
+      const mockFilePath = [
+        "tests",
+        "resources",
+        "input_invalid_item_cost",
+      ].join(path.sep);
+      const packingError = new PackingError(
+        "Item cost €105 (from package with weight limit 65) exceeds €100"
+      );
+
+      await expect(Packer.pack(mockFilePath)).rejects.toThrow(packingError);
+    });
+
+    test("should reject with an error for invalid number of items", async () => {
+      const mockFilePath = [
+        "tests",
+        "resources",
+        "input_invalid_item_number",
+      ].join(path.sep);
+      const packingError = new PackingError(
+        "Number of items (16) (from package with weight limit 79) exceeds 15"
+      );
+
+      await expect(Packer.pack(mockFilePath)).rejects.toThrow(packingError);
     });
   });
 });

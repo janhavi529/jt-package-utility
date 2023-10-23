@@ -69,6 +69,7 @@ const mockInvalidExceededItemsCountLine =
   "79 : (1,85.31,€29) (2,14.55,€74) (3,3.98,€16) (4,26.24,€55) (5,63.69,€52) (6,76.25,€75) (7,60.02,€74) (8,93.18,€35) (9,89.95,€78) (10,85.32,€19) (11,14.45,€74) (12,3.78,€66) (13,26.14,€59) (14,13.69,€50) (15,76.25,€75) (16,60.02,€74)";
 const mockInvalidItemOptionsLine = "8 : (1,15.3,€34)";
 const mockInvalidNoItemOptionsLine = "80 : ";
+const mockInvalidItemFormatLine = "55 : [1,4.31,€100] {2,14.55,€74} <3,3.98,€16>";
 
 export {
   mockValidItems,
@@ -81,4 +82,5 @@ export {
   mockInvalidExceededItemsCountLine,
   mockInvalidItemOptionsLine,
   mockInvalidNoItemOptionsLine,
+  mockInvalidItemFormatLine
 };
