@@ -1,4 +1,4 @@
-# Assignment: Package Challenge
+# Package Challenge
 
 ## Introduction
 You want to send your friend a package with different things. 
@@ -46,7 +46,7 @@ class Packer {
 ## Usage
 
 Install NPM package:
-```npm install jt-package-utility```
+```npm install jt-packer-utility```
 
 Import and Use:
 ```import Packer from 'jt-packer-utility';```
