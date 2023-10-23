@@ -6,8 +6,7 @@
       "dom"
     ] /* Specify library files to be included in the compilation. */,
     "rootDir": "./src" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
-    "outDir": "./dist" /* Redirect output structure to the directory. */,
-    "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "outDir": "./dist" /* Redirect output structure to the directory. */
   },
   "include": ["src/**/*"],
   "exclude": ["**/*.spec.ts"]
