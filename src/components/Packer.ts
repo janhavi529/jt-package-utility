@@ -86,14 +86,14 @@ export class Packer {
     }
 
     // Extract items from the line.
-    const itemRegex = /\(\d+,\d+\.\d+,\€\d+\)/g;
+    const itemRegex = /\(\d+,\d+\.\d+,€\d+\)/g;
     const matchedItems = line.match(itemRegex);
 
     if (matchedItems && matchedItems.length) {
       // Form an array of item objects with index, weight and cost.
       const items = matchedItems.reduce(
         (accum: Array<ItemObj>, itemStr: string) => {
-          const itemStringMatch = itemStr.match(/(\d+),([\d.]+),\€(\d+)/);
+          const itemStringMatch = itemStr.match(/(\d+),([\d.]+),€(\d+)/);
 
           if (itemStringMatch && itemStringMatch.length) {
             // Extract the item's index, weight and cost.
