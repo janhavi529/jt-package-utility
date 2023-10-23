@@ -1,14 +1,14 @@
-import path from "path";
+import path from 'path';
 
-import appRootPath from "app-root-path";
+import appRootPath from 'app-root-path';
 
-import { getAbsoluteFilePath } from "../../../src/lib/utils/path";
-import { PathNotFound } from "../../../src/lib/errors/NotFoundErrors";
+import { getAbsoluteFilePath } from '../../../src/lib/utils/path';
+import { PathNotFound } from '../../../src/lib/errors/NotFoundErrors';
 
-describe("Path Utils", () => {
-  test("should return absolute file path", () => {
+describe('Path Utils', () => {
+  test('should return absolute file path', () => {
     const appRoot = appRootPath.toString();
-    const filePathArr = ["tests", "resources", "input_valid"];
+    const filePathArr = ['tests', 'resources', 'input_valid'];
     const pathAppend = filePathArr.join(path.sep);
     const mockFilePath = `${appRoot}${path.sep}${pathAppend}`;
 
@@ -17,20 +17,20 @@ describe("Path Utils", () => {
     expect(absolutePath).toEqual(path.join(appRoot, ...filePathArr));
   });
 
-  test("should return absolute file path given the relative path", () => {
+  test('should return absolute file path given the relative path', () => {
     const appRoot = appRootPath.toString();
-    const filePathArr = ["tests", "resources", "input_valid"];
+    const filePathArr = ['tests', 'resources', 'input_valid'];
 
     const absolutePath = getAbsoluteFilePath(filePathArr.join(path.sep));
 
     expect(absolutePath).toEqual(path.join(appRoot, ...filePathArr));
   });
 
-  test("should throw PathNotFound if the path is not passed", () => {
-    const pathNotFoundError = new PathNotFound("Path does not exist");
+  test('should throw PathNotFound if the path is not passed', () => {
+    const pathNotFoundError = new PathNotFound('Path does not exist');
 
     try {
-      getAbsoluteFilePath("");
+      getAbsoluteFilePath('');
     } catch (err) {
       expect(err).toEqual(pathNotFoundError);
     }

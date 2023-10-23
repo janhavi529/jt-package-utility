@@ -21,7 +21,4 @@ class PathNotFound extends NotFound {
   }
 }
 
-export {
-  FileNotFound,
-  PathNotFound
-};
+export { FileNotFound, PathNotFound };

@@ -1,6 +1,6 @@
-import fs from "fs";
+import fs from 'fs';
 
-import { FileNotFound } from "../errors/NotFoundErrors";
+import { FileNotFound } from '../errors/NotFoundErrors';
 
 /**
  * Check if file exists.

@@ -1,8 +1,8 @@
-import path from "path";
+import path from 'path';
 
-import appRootPath from "app-root-path";
+import appRootPath from 'app-root-path';
 
-import { PathNotFound } from "../errors/NotFoundErrors";
+import { PathNotFound } from '../errors/NotFoundErrors';
 
 /**
  * Check if file path is absolute or relative.
@@ -14,11 +14,11 @@ import { PathNotFound } from "../errors/NotFoundErrors";
  */
 const getAbsoluteFilePath = (filePath: string): string => {
   if (!filePath) {
-    throw new PathNotFound("Path does not exist");
+    throw new PathNotFound('Path does not exist');
   }
 
   const appRoot = appRootPath.toString();
-  let absolutePath = "";
+  let absolutePath = '';
 
   // Split file path based on separator to make sure it is O.S. agnostic.
   const filePathArr = filePath.split(path.sep);

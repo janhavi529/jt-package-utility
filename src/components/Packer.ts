@@ -1,9 +1,9 @@
-import fs from "fs";
-import readline from "readline";
+import fs from 'fs';
+import readline from 'readline';
 
-import { getAbsoluteFilePath } from "../lib/utils/path";
-import { checkIfFileExists } from "../lib/utils/file";
-import { PackingError } from "../lib/errors/PackingError";
+import { getAbsoluteFilePath } from '../lib/utils/path';
+import { checkIfFileExists } from '../lib/utils/file';
+import { PackingError } from '../lib/errors/PackingError';
 
 // Using an interface to define the item object type.
 interface ItemObj {
@@ -37,29 +37,29 @@ export class Packer {
         // Instead of synchronously loading the entire file before reading any lines, which consumes more memory.
         const rl = readline.createInterface({
           input: readStream,
-          crlfDelay: Infinity, // Identify all instances of \r\n as a single newline.
+          crlfDelay: Infinity // Identify all instances of \r\n as a single newline.
         });
 
         const packages: Array<string> = [];
 
         // Process each line from the file.
-        rl.on("line", (line) => {
+        rl.on('line', line => {
           try {
             const packageDetails = this.getPackageDetailsFromFileLine(line);
             packages.push(packageDetails);
           } catch (err: any) {
-            reject(new PackingError(err.message || "Unable to pack"));
+            reject(new PackingError(err.message || 'Unable to pack'));
           }
         });
 
-        rl.on("close", () => {
+        rl.on('close', () => {
           // Return string of package details.
-          const packagesOutput = packages.join("\n");
+          const packagesOutput = packages.join('\n');
           resolve(packagesOutput);
         });
       });
     } catch (err: any) {
-      throw new PackingError(err.message || "Unable to pack");
+      throw new PackingError(err.message || 'Unable to pack');
     }
   }
 
@@ -75,7 +75,7 @@ export class Packer {
     const weightLimitMatch = line.match(/(\d+) :/);
 
     if (!weightLimitMatch) {
-      return "-";
+      return '-';
     }
 
     const weightLimit = parseInt(weightLimitMatch[1]);
@@ -100,7 +100,7 @@ export class Packer {
             const item = {
               index: parseInt(itemStringMatch[1]),
               weight: parseFloat(itemStringMatch[2]),
-              cost: parseInt(itemStringMatch[3]),
+              cost: parseInt(itemStringMatch[3])
             };
 
             // Throw an error if item weight is greater than 100.
@@ -137,14 +137,14 @@ export class Packer {
 
       // Return item indices in the required string format e.g. '4', '-', '2,7', '8,9'
       if (packageItems.length) {
-        return packageItems.join(",");
+        return packageItems.join(',');
       } else {
-        return "-";
+        return '-';
       }
     }
 
     // Return "-" by default if there are no items provided in the input line.
-    return "-";
+    return '-';
   }
 
   /**
