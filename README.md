@@ -41,15 +41,14 @@ class Packer {
 }
 ```
 
-7. Signatures of ```Packer``` class, ```pack()``` method and ```PackingError``` are already provided, please **do not change** them. Feel free to structure the rest of the project as you wish!
+7. Signatures of ```Packer``` class, ```pack()``` method and ```PackingError``` are already provided, please **do not change** them.
 
-## Remember
-Apply best practices for software design & development and document your approach (what strategy/algorithm/data structure/design pattern you chose and why) and put comments into your source files. We do consider TDD a best practice.
+## Usage
 
-## Your solution
-When finished, please send a zip file with your source to your contact person within Mobiquity. The zip file/repository should include the typescript source files for your solution. The source code will be examined by one of our developers. Note that your delivered archive should be considered production release ready.
-Your solution is meant to be used as a library (i.e. npm package), NOT as a standalone application.
-Good luck with this assignment. If you have any questions, don’t hesitate to ask your contact person within Mobiquity.
+Install NPM package:
+```npm install jt-package-utility```
 
+Import and Use:
+```import Packer from 'jt-packer-utility';```
 
-Good luck, and have fun!
+```const packingSolution = await Packer.pack(filePath);  // filePath is an absolute/relative file path```
