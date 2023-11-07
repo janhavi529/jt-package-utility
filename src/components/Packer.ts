@@ -52,6 +52,7 @@ export class Packer {
           }
         });
 
+        // When all lines from the input file have been read:
         rl.on('close', () => {
           // Return string of package details.
           const packagesOutput = packages.join('\n');
@@ -136,11 +137,7 @@ export class Packer {
       const packageItems = this.getPackageItems(weightLimit, items);
 
       // Return item indices in the required string format e.g. '4', '-', '2,7', '8,9'
-      if (packageItems.length) {
-        return packageItems.join(',');
-      } else {
-        return '-';
-      }
+      return packageItems.length ? packageItems.join(',') : '-';
     }
 
     // Return "-" by default if there are no items provided in the input line.
@@ -150,7 +147,7 @@ export class Packer {
   /**
    * Use dynamic programming to determine which things to put into the package so that the total weight is less than or equal to the package limit and the total cost is as large as possible.
    *
-   * @param {Number} weightLimit line from input file
+   * @param {Number} weightLimit package weight limit
    * @param {Array} items array of items containing index, weight and cost.
    * @throws {PackingError} if unable to pack
    * @returns {Array} selected package items
